@@ -1,3 +1,8 @@
+﻿using BuildingBlocks.Behaviors;
+using Catalog.Api.Models;
+using FluentValidation;
+using Marten;
+using Marten.Schema;
 namespace Catalog.Api
 {
     public class Program
@@ -5,11 +10,23 @@ namespace Catalog.Api
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
+            var assembly = typeof(Program).Assembly;
             builder.Services.AddMediatR(cfg =>
             {
-                cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
+                cfg.RegisterServicesFromAssembly(assembly);
+                cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
             });
+            builder.Services.AddValidatorsFromAssembly(assembly);
+
+            builder.Services.AddMarten(options =>
+            {
+                options.Connection(builder.Configuration.GetConnectionString("Postgres")); // 1️⃣ connect to Postgres
+
+                // Register your document types (optional; Marten will detect automatically)
+                //options.Schema.For<Product>().Identity(x => x.Id);
+
+                options.DatabaseSchemaName = "public"; // 3️⃣ schema name in Postgres (default: public)
+            }).UseLightweightSessions();
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();

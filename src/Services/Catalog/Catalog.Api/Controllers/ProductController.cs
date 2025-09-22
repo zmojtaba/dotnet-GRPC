@@ -1,8 +1,10 @@
 ﻿using Catalog.Api.Mappers;
 using Catalog.Api.Products.CreateProduct;
+using Catalog.Api.Products.DeleteProduct;
 using Catalog.Api.Products.GetProductByCategory;
 using Catalog.Api.Products.GetProductById;
 using Catalog.Api.Products.GetProductsList;
+using Catalog.Api.Products.UpdateProductById;
 using ImTools;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -25,7 +27,14 @@ namespace Catalog.Api.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateProduct([FromBody] CreateProductRequest request)
         {
-            CreateProductResult result = await _mediator.Send(request.ToCreateProductCommand() );
+            CreateProductResult result = await _mediator.Send(request.ToCreateProductCommand());
+            return Ok(result);
+        }
+
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateProduct([FromBody] UpdateProductByIdCommand request)
+        {
+            UpdateProductByIdResult result = await _mediator.Send(request);
             return Ok(result);
         }
 
@@ -47,6 +56,13 @@ namespace Catalog.Api.Controllers
         public async Task<IActionResult> GetProductsByCategory(string category)
         {
             var result = await _mediator.Send(new GetProductByCategoryQuery(category));
+            return Ok(result);
+        }
+
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteProduct([FromRoute] Guid id)
+        {
+            var result = await _mediator.Send(new DeleteProductCommand(id));
             return Ok(result);
         }
     }

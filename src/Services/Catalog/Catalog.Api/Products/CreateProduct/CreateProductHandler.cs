@@ -7,17 +7,6 @@ using MediatR;
 namespace Catalog.Api.Products.CreateProduct
 {
 
-    public class CreateProductCommandValidator : AbstractValidator<CreateProductCommand>
-    {
-        public CreateProductCommandValidator()
-        {
-            RuleFor(x => x.Name).NotEmpty().MaximumLength(100);
-            RuleFor(x => x.Category).NotEmpty();
-            RuleFor(x => x.Description).NotEmpty().MaximumLength(500);
-            RuleFor(x => x.ImageFile).NotEmpty().MaximumLength(200);
-            RuleFor(x => x.Price).GreaterThan(0);
-        }
-    }
     public record CreateProductCommand(string Name, List<string> Category, string Description, string ImageFile, decimal Price)
         :ICommand<CreateProductResult>;
     public record CreateProductResult(Guid Id);

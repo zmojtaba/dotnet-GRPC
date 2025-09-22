@@ -1,4 +1,5 @@
 ﻿using BuildingBlocks.Behaviors;
+using BuildingBlocks.Exceptions.Handler;
 using Catalog.Api.Models;
 using FluentValidation;
 using Marten;
@@ -15,6 +16,8 @@ namespace Catalog.Api
             {
                 cfg.RegisterServicesFromAssembly(assembly);
                 cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+                cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
+
             });
             builder.Services.AddValidatorsFromAssembly(assembly);
 
@@ -27,6 +30,8 @@ namespace Catalog.Api
 
                 options.DatabaseSchemaName = "public"; // 3️⃣ schema name in Postgres (default: public)
             }).UseLightweightSessions();
+
+            builder.Services.AddExceptionHandler<CustomeExceptionHandler>();
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
@@ -43,6 +48,8 @@ namespace Catalog.Api
             }
 
             app.MapControllers();
+
+            app.UseExceptionHandler(options => { });
 
             app.Run();
         }
